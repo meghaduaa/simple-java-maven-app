@@ -1,27 +1,40 @@
 pipeline {
     agent any
-    options {
-        skipStagesAfterUnstable()
+
+    tools {
+        maven 'Maven 3.8.1'
     }
+
+    environment {
+        DOCKER_IMAGE = "meghaduaa/simple-java-maven-app:${BUILD_NUMBER}"
+    }
+
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                sh 'mvn -B -DskipTests clean package'
+                git url: 'https://github.com/meghaduaa/simple-java-maven-app.git', credentialsId: '8588d0be-9dd7-47c0-9205-1136af373d6d'
             }
         }
-        stage('Test') {
+        stage('Build Maven Project') {
             steps {
-                sh 'mvn test'
+                sh 'mvn clean package'
             }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                withDockerRegistry([credentialsId: '6e0261b8-587d-4bcf-9032-5a7edeafc531']) {
+                    sh 'docker push $DOCKER_IMAGE'
                 }
             }
         }
-        stage('Deliver') { 
+        stage('Deploy to Kubernetes') {
             steps {
-                sh './jenkins/scripts/deliver.sh' 
+                sh 'kubectl set image deployment/sample-app-deployment sample-container=$DOCKER_IMAGE'
             }
         }
     }
