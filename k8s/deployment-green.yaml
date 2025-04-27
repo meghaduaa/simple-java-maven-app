@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: your-dockerhub-username/your-app-name:latest
+        image: meghaduaa/simmple-java-maven-app:latest
         ports:
         - containerPort: 3000
 
