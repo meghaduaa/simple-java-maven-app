@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: meghaduaa/your-app-name:latest
+        image: meghaduaa/simple-java-maven-app:latest
         ports:
         - containerPort: 3000
 
